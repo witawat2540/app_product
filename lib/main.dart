@@ -1,10 +1,18 @@
-import 'package:controlc_shop/product.dart';
+import 'package:controlc_shop/service/MyWidget.dart';
+import 'package:controlc_shop/service/mytextinput.dart';
 import 'package:controlc_shop/sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
-void main() {
+import 'product.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(MyApp());
 }
 
@@ -13,12 +21,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Product',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         scaffoldBackgroundColor: Colors.blue[300],
         textTheme: GoogleFonts.maliTextTheme(Theme.of(context).textTheme),
-        primarySwatch:Colors.blue,
+        primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: MyHomePage(),
@@ -31,112 +39,197 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
+class user {
+  String email = '';
+  String password = '';
+}
+
 class _MyHomePageState extends State<MyHomePage> {
+  GlobalKey<FormState> key_form = GlobalKey<FormState>();
+  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  user _user = user();
+  FirebaseAuth auth = FirebaseAuth.instance;
+
+
+
+  Future<UserCredential> signInWithGoogle() async {
+   try{
+     // Trigger the authentication flow
+     final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
+
+     // Obtain the auth details from the request
+     final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+     // Create a new credential
+     final GoogleAuthCredential credential = GoogleAuthProvider.credential(
+       accessToken: googleAuth.accessToken,
+       idToken: googleAuth.idToken,
+     );
+     // Once signed in, return the UserCredential
+     Navigator.pushReplacement(
+       context,
+       CupertinoPageRoute(
+         builder: (context) => Product(),
+       ),
+     );
+     return await FirebaseAuth.instance.signInWithCredential(credential);
+   }catch(e){
+     print(e);
+   }
+  }
+  Login() async {
+    key_form.currentState.save();
+    if (_user.email.isEmpty || _user.password.isEmpty) {
+      My_widget.showInSnackBar("กรุณากรอก Email&Password", Colors.white,
+          _scaffoldKey, Colors.red, 4);
+    } else {
+      try {
+        UserCredential userCredential = await FirebaseAuth.instance
+            .signInWithEmailAndPassword(
+                email: _user.email, password: _user.password);
+        Navigator.pushReplacement(
+          context,
+          CupertinoPageRoute(
+            builder: (context) => Product(),
+          ),
+        );
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'user-not-found') {
+          My_widget.showInSnackBar("ไม่มีผู้ใช้งานนี้กรูณา Sign Up",
+              Colors.white, _scaffoldKey, Colors.red, 4);
+        } else if (e.code == 'wrong-password') {
+          My_widget.showInSnackBar("กรุณากรอกรหัสผ่านให้ถูกต้อง", Colors.white,
+              _scaffoldKey, Colors.red, 4);
+        }
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        //backgroundColor: Colors.blue[300],
-        body: GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: SafeArea(
-        child: Center(
-          child: ListView(
-            shrinkWrap: true,
-            children: [
-              Center(
-                child: Text(
-                  "Login",
-                  style: TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: 30,
-              ),
-              label("Email"),
-              mycontaner(
-                textInputType: TextInputType.emailAddress,
-                hintText: "กรอกอีเมล",
-                icon: Icons.email,
-              ),
-              buildSizedBox(),
-              label("Password"),
-              mycontaner(
-                textInputType: TextInputType.visiblePassword,
-                obscureText: true,
-                hintText: "กรอกรหัสผ่าน",
-                icon: Icons.vpn_key,
-              ),
-              SizedBox(
-                height: 30,
-              ),
-              Container(
-                height: 40,
-                child: RaisedButton(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18.0)),
-                  child: Text(
-                    "Login",
-                    style: TextStyle(fontSize: 20),
-                  ),
-                  onPressed: () => Navigator.push(
-                      context,
-                      CupertinoPageRoute(
-                        builder: (context) => Product(),
-                      )),
-                  color: Colors.white,
-                  textColor: Colors.indigo,
-                ),
-                margin: EdgeInsets.symmetric(horizontal: 50),
-              ),
-              buildSizedBox2(),
-              Center(
-                child: Text(
-                  "--OR--",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              buildSizedBox2(),
-              Login_by('images/icon/google.png', "Login Form Google", () {}),
-              buildSizedBox2(),
-              Login_by(
-                  'images/icon/facebook.png', "Login Form Facebook", () {}),
-              buildSizedBox(),
-              buildSizedBox(),
-              buildSizedBox(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Don't have an Account ?",
-                    style: TextStyle(fontSize: 20, color: Colors.white),
-                  ),
-                  FlatButton(
-                    child: Text(
-                      "Sign Up",
-                      style: TextStyle(fontSize: 20),
+    return auth.currentUser != null
+        ? Product()
+        : Scaffold(
+            key: _scaffoldKey,
+            body: GestureDetector(
+              onTap: () => FocusScope.of(context).unfocus(),
+              child: Form(
+                key: key_form,
+                child: SafeArea(
+                  child: Center(
+                    child: ListView(
+                      shrinkWrap: true,
+                      children: [
+                        Center(
+                          child: Text(
+                            "Login",
+                            style: TextStyle(
+                              fontSize: 40,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 30,
+                        ),
+                        label("Email"),
+                        mycontaner(
+                          //key: key_form,
+                          textInputType: TextInputType.emailAddress,
+                          hintText: "กรอกอีเมล",
+                          icon: Icons.email,
+                          onSaved: (value) {
+                            setState(() {
+                              _user.email = value;
+                            });
+                          },
+                        ),
+                        buildSizedBox(),
+                        label("Password"),
+                        mycontaner(
+                          textInputType: TextInputType.visiblePassword,
+                          obscureText: true,
+                          hintText: "กรอกรหัสผ่าน",
+                          onSaved: (value) {
+                            setState(() {
+                              _user.password = value;
+                            });
+                          },
+                          icon: Icons.vpn_key,
+                        ),
+                        SizedBox(
+                          height: 30,
+                        ),
+                        Container(
+                          height: 40,
+                          child: RaisedButton(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18.0)),
+                            child: Text(
+                              "Login",
+                              style: TextStyle(fontSize: 20),
+                            ),
+                            onPressed: () => Login(),
+                            color: Colors.white,
+                            textColor: Colors.indigo,
+                          ),
+                          margin: EdgeInsets.symmetric(horizontal: 50),
+                        ),
+                        buildSizedBox2(),
+                        Center(
+                          child: Text(
+                            "-OR-",
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        buildSizedBox2(),
+                        Login_by('images/icon/google.png',
+                            "Continue with Google", () =>signInWithGoogle()),
+                        buildSizedBox2(),
+                        Login_by('images/icon/facebook.png',
+                            "Continue with Facebook", () {}),
+                        buildSizedBox(),
+                        buildSizedBox(),
+                        buildSizedBox(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Don't have an Account ?",
+                              style:
+                                  TextStyle(fontSize: 20, color: Colors.white),
+                            ),
+                            FlatButton(
+                              child: Text(
+                                "Sign Up",
+                                style: TextStyle(fontSize: 20),
+                              ),
+                              textColor: Colors.white,
+                              onPressed: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => Signin_Page(),
+                                  )),
+                            ),
+                          ],
+                        )
+                      ],
                     ),
-                    textColor: Colors.white,
-                    onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Signin_Page(),
-                        )),
                   ),
-                ],
-              )
-            ],
-          ),
-        ),
-      ),
-    ));
+                ),
+              ),
+            ),
+          );
   }
 
   SizedBox buildSizedBox2() {
@@ -160,7 +253,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             Text(
               text,
-              style: TextStyle(fontSize: 20),
+              style: TextStyle(fontSize: 17),
             ),
             SizedBox(
               width: 10,
@@ -196,53 +289,3 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class mycontaner extends StatelessWidget {
-  final icon;
-  final String hintText;
-  final TextInputType textInputType;
-  final bool obscureText;
-
-  const mycontaner({
-    Key key,
-    this.icon,
-    this.hintText,
-    this.textInputType,
-    this.obscureText = false,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 50),
-      decoration: BoxDecoration(
-        color: Colors.blue[300].withAlpha(450),
-        borderRadius: BorderRadius.all(
-          Radius.circular(5.0),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12.withOpacity(0.3),
-            spreadRadius: 0.5,
-            blurRadius: 4,
-            offset: Offset(0, 2), // changes position of shadow
-          ),
-        ],
-      ),
-      child: TextFormField(
-        cursorColor: Colors.white,
-        obscureText: obscureText,
-        keyboardType: TextInputType.emailAddress,
-        style: TextStyle(color: Colors.white),
-        decoration: InputDecoration(
-            border: InputBorder.none,
-            contentPadding: EdgeInsets.only(top: 14.0),
-            prefixIcon: Icon(
-              icon,
-              color: Colors.white,
-            ),
-            hintText: hintText,
-            hintStyle: TextStyle(color: Colors.white)),
-      ),
-    );
-  }
-}

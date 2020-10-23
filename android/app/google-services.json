@@ -1,0 +1,93 @@
+{
+  "project_info": {
+    "project_number": "209157720799",
+    "firebase_url": "https://workshopfirebase-1fbb9.firebaseio.com",
+    "project_id": "workshopfirebase-1fbb9",
+    "storage_bucket": "workshopfirebase-1fbb9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:209157720799:android:bb367c3496a9c18fb4776a",
+        "android_client_info": {
+          "package_name": "com.witawatd.controlc_shop"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "209157720799-5dhuoqnmm9qapvgpp1nd2rjuu67ceum6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.witawatd.controlc_shop",
+            "certificate_hash": "84f2b73b146ed3a38adcfa8adc14a4b27bc42188"
+          }
+        },
+        {
+          "client_id": "209157720799-4cj32lrd149nlm38v3p0fj8vbrp8clv0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBE6FqE3jB06oR-Ma4vOf8E3awSFJwobeg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "209157720799-4cj32lrd149nlm38v3p0fj8vbrp8clv0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:209157720799:android:09622cc9ad9d5795b4776a",
+        "android_client_info": {
+          "package_name": "com.witawatd.flutter_firebase"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "209157720799-a4demhdn8uv90n1ijkliuq6i3ii3vkot.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.witawatd.flutter_firebase",
+            "certificate_hash": "84f2b73b146ed3a38adcfa8adc14a4b27bc42188"
+          }
+        },
+        {
+          "client_id": "209157720799-60jtqtb25ts6uqfmok67a6f3v97ilme3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.witawatd.flutter_firebase",
+            "certificate_hash": "750bb4742df7312091b9ca81d42573e53f4bdd15"
+          }
+        },
+        {
+          "client_id": "209157720799-4cj32lrd149nlm38v3p0fj8vbrp8clv0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBE6FqE3jB06oR-Ma4vOf8E3awSFJwobeg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "209157720799-4cj32lrd149nlm38v3p0fj8vbrp8clv0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,5 +1,7 @@
-
 import 'package:controlc_shop/main.dart';
+import 'package:controlc_shop/service/MyWidget.dart';
+import 'package:controlc_shop/service/mytextinput.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class Signin_Page extends StatefulWidget {
@@ -8,19 +10,55 @@ class Signin_Page extends StatefulWidget {
 }
 
 class _Signin_PageState extends State<Signin_Page> {
+  GlobalKey<FormState> key_form = GlobalKey<FormState>();
+  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  user _user = user();
+
+  Sing_up() async {
+    key_form.currentState.save();
+    if (_user.password.isNotEmpty || _user.email.isNotEmpty) {
+      try {
+        UserCredential userCredential = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(
+                email: _user.email, password: _user.password)
+            .then((value) {
+          return;
+        });
+        Navigator.pop(context);
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'weak-password') {
+          My_widget.showInSnackBar(
+              "รหัสผ่านง่ายเกินไป", Colors.white, _scaffoldKey, Colors.red, 4);
+        } else if (e.code == 'email-already-in-use') {
+          My_widget.showInSnackBar(
+              "มีผู้ใช้งานนี้แล้ว", Colors.white, _scaffoldKey, Colors.red, 4);
+        }
+      } catch (e) {
+        print(e);
+        My_widget.showInSnackBar(
+            "เกิดข้อผิดพลาด", Colors.white, _scaffoldKey, Colors.red, 4);
+      }
+    } else {
+      My_widget.showInSnackBar("กรุณากรอก Email&Password", Colors.white,
+          _scaffoldKey, Colors.red, 4);
+    }
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
-//        backgroundColor: Colors.blue[300],
-        body: GestureDetector(
-          onTap: () => FocusScope.of(context).unfocus(),
-          child: SafeArea(
-            child: Center(
+      key: _scaffoldKey,
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SafeArea(
+          child: Center(
+            child: Form(
+              key: key_form,
               child: ListView(
                 shrinkWrap: true,
                 children: [
                   Center(
                     child: Text(
-                      "Sign In",
+                      "Sign Up",
                       style: TextStyle(
                         fontSize: 40,
                         fontWeight: FontWeight.bold,
@@ -36,6 +74,11 @@ class _Signin_PageState extends State<Signin_Page> {
                     textInputType: TextInputType.emailAddress,
                     hintText: "กรอกอีเมล",
                     icon: Icons.email,
+                    onSaved: (value) {
+                      setState(() {
+                        _user.email = value;
+                      });
+                    },
                   ),
                   buildSizedBox(),
                   label("Password"),
@@ -43,6 +86,11 @@ class _Signin_PageState extends State<Signin_Page> {
                     textInputType: TextInputType.visiblePassword,
                     obscureText: true,
                     hintText: "กรอกรหัสผ่าน",
+                    onSaved: (value) {
+                      setState(() {
+                        _user.password = value;
+                      });
+                    },
                     icon: Icons.vpn_key,
                   ),
                   SizedBox(
@@ -54,40 +102,22 @@ class _Signin_PageState extends State<Signin_Page> {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(18.0)),
                       child: Text(
-                        "Sign In",
+                        "Register",
                         style: TextStyle(fontSize: 20),
                       ),
-                      onPressed: () {},
+                      onPressed: () => Sing_up(),
                       color: Colors.white,
                       textColor: Colors.indigo,
                     ),
                     margin: EdgeInsets.symmetric(horizontal: 50),
                   ),
-                  buildSizedBox2(),
-                  Center(
-                    child: Text(
-                      "--OR--",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  buildSizedBox2(),
-                  Login_by(
-                      'images/icon/google.png', "Continue with Google", () {}),
-                  buildSizedBox2(),
-                  Login_by(
-                      'images/icon/facebook.png', "Continue with Facebook", () {}),
-                  buildSizedBox(),
-                  buildSizedBox(),
-                  buildSizedBox(),
                 ],
               ),
             ),
           ),
-        ));
+        ),
+      ),
+    );
   }
 
   SizedBox buildSizedBox2() {
@@ -101,7 +131,7 @@ class _Signin_PageState extends State<Signin_Page> {
       height: 40,
       child: RaisedButton(
         shape:
-        RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
