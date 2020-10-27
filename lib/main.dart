@@ -1,6 +1,6 @@
 import 'package:controlc_shop/service/MyWidget.dart';
 import 'package:controlc_shop/service/mytextinput.dart';
-import 'package:controlc_shop/sign_in.dart';
+import 'package:controlc_shop/sign_up.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
